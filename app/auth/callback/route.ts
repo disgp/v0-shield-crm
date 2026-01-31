@@ -7,8 +7,13 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
 
   if (code) {
-    const supabase = createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const supabase = await createClient()
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (error) {
+      console.error('[v0] Error exchanging code for session:', error)
+      return NextResponse.redirect(new URL('/login?error=auth_failed', requestUrl.origin))
+    }
   }
 
   // Redirect to dashboard after successful authentication
