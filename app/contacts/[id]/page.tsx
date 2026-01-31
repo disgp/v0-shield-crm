@@ -55,10 +55,10 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
           </Link>
         }
       />
-      <div className="p-6">
-        <div className="grid gap-6 lg:grid-cols-3">
+      <div className="p-4 sm:p-6">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
           {/* Left Column */}
-          <div className="space-y-6 lg:col-span-2">
+          <div className="space-y-4 sm:space-y-6 lg:col-span-2">
             {/* Contact Info Card */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -116,7 +116,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
           </div>
 
           {/* Right Column */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Map Card */}
             <Card>
               <CardHeader>
@@ -144,18 +144,18 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-3 gap-3">
-                <Button variant="outline" className="h-20 flex-col gap-2 bg-transparent">
-                  <Briefcase className="h-6 w-6" />
-                  <span className="text-xs">Jobs</span>
+              <CardContent className="grid grid-cols-3 gap-2 sm:gap-3">
+                <Button variant="outline" className="h-16 flex-col gap-1.5 bg-transparent text-xs sm:h-20 sm:gap-2">
+                  <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <span>Jobs</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 bg-transparent">
-                  <FileText className="h-6 w-6" />
-                  <span className="text-xs">Estimate</span>
+                <Button variant="outline" className="h-16 flex-col gap-1.5 bg-transparent text-xs sm:h-20 sm:gap-2">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <span>Estimate</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2 bg-transparent">
-                  <Calendar className="h-6 w-6" />
-                  <span className="text-xs">Schedule</span>
+                <Button variant="outline" className="h-16 flex-col gap-1.5 bg-transparent text-xs sm:h-20 sm:gap-2">
+                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <span>Schedule</span>
                 </Button>
               </CardContent>
             </Card>

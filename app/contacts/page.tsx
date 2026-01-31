@@ -73,10 +73,10 @@ export default function ContactsPage() {
           </Button>
         }
       />
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Card className="overflow-hidden">
           {/* Select All Header */}
-          <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-4 py-3">
+          <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-3 py-2.5 sm:px-4 sm:py-3">
             <Checkbox id="select-all" />
             <label htmlFor="select-all" className="text-sm font-medium">
               Select All
@@ -89,24 +89,28 @@ export default function ContactsPage() {
               <Link
                 key={contact.id}
                 href={`/contacts/${contact.id}`}
-                className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50"
+                className="flex items-start gap-3 p-3 transition-colors hover:bg-muted/50 sm:items-center sm:gap-4 sm:p-4"
               >
-                <Checkbox onClick={(e) => e.preventDefault()} />
+                <Checkbox onClick={(e) => e.preventDefault()} className="mt-0.5 sm:mt-0" />
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 font-semibold text-foreground">{contact.name}</div>
-                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    <span className="truncate">
+                  <div className="flex flex-col gap-1.5 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
+                    <span className="break-words">
                       {contact.address.street}, {contact.address.city}, {contact.address.state}{' '}
                       {contact.address.zip}
                     </span>
-                    <Badge variant="secondary" className="shrink-0 text-xs">
+                    <Badge variant="secondary" className="w-fit text-xs">
                       {contact.propertyType}
                     </Badge>
                   </div>
+                  <div className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground sm:hidden">
+                    <Phone className="h-3.5 w-3.5" />
+                    <span>{contact.phone}</span>
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                <div className="hidden shrink-0 items-center gap-2 text-sm text-muted-foreground sm:flex">
                   <Phone className="h-4 w-4" />
-                  <span className="hidden sm:inline">{contact.phone}</span>
+                  <span>{contact.phone}</span>
                 </div>
               </Link>
             ))}

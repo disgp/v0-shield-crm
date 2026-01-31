@@ -66,33 +66,39 @@ export default function JobsPage() {
           </Button>
         }
       />
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Card className="overflow-hidden">
           <div className="divide-y divide-border">
             {jobs.map((job) => (
               <Link
                 key={job.id}
                 href={`/jobs/${job.id}`}
-                className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50"
+                className="flex items-start gap-3 p-3 transition-colors hover:bg-muted/50 sm:items-center sm:gap-4 sm:p-4"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center gap-2">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-foreground">{job.title}</span>
-                    <Badge variant={job.statusVariant}>{job.status}</Badge>
+                    <Badge variant={job.statusVariant} className="text-xs">
+                      {job.status}
+                    </Badge>
                   </div>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <span className="font-medium">{job.customer}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      <span className="truncate">{job.address}</span>
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      <span className="break-words">{job.address}</span>
+                    </div>
+                    <div className="flex items-center gap-1 sm:hidden">
+                      <Calendar className="h-3 w-3" />
+                      <span>{job.startDate}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                <div className="hidden shrink-0 items-center gap-2 text-sm text-muted-foreground sm:flex">
                   <Calendar className="h-4 w-4" />
-                  <span className="hidden sm:inline">{job.startDate}</span>
+                  <span>{job.startDate}</span>
                 </div>
               </Link>
             ))}
