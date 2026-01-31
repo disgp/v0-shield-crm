@@ -14,7 +14,6 @@ const leads = [
     phone: '(555) 123-4567',
     email: 'robert.a@email.com',
     source: 'Google Ads',
-    statusColor: 'bg-blue-500',
   },
   {
     id: '2',
@@ -23,7 +22,6 @@ const leads = [
     phone: '(555) 234-5678',
     email: 'linda.m@email.com',
     source: 'Referral',
-    statusColor: 'bg-yellow-500',
   },
   {
     id: '3',
@@ -32,27 +30,51 @@ const leads = [
     phone: '(555) 345-6789',
     email: 'james.w@email.com',
     source: 'Organic Search',
-    statusColor: 'bg-green-500',
   },
   {
     id: '4',
     name: 'Patricia Lee',
-    status: 'Proposal Sent',
+    status: 'Converted',
     phone: '(555) 456-7890',
     email: 'patricia.l@email.com',
     source: 'Social Media',
-    statusColor: 'bg-purple-500',
   },
   {
     id: '5',
     name: 'Michael Brown',
-    status: 'New',
+    status: 'Unqualified',
     phone: '(555) 567-8901',
     email: 'michael.b@email.com',
     source: 'Google Ads',
-    statusColor: 'bg-blue-500',
+  },
+  {
+    id: '6',
+    name: 'Sarah Davis',
+    status: 'Lost',
+    phone: '(555) 678-9012',
+    email: 'sarah.d@email.com',
+    source: 'Referral',
   },
 ]
+
+const getStatusVariant = (status: string) => {
+  switch (status) {
+    case 'New':
+      return 'default'
+    case 'Contacted':
+      return 'secondary'
+    case 'Qualified':
+      return 'default'
+    case 'Unqualified':
+      return 'secondary'
+    case 'Converted':
+      return 'default'
+    case 'Lost':
+      return 'destructive'
+    default:
+      return 'secondary'
+  }
+}
 
 export default function LeadsPage() {
   return (
@@ -62,7 +84,7 @@ export default function LeadsPage() {
         action={
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            New Lead
+            Add Lead
           </Button>
         }
       />
@@ -71,24 +93,24 @@ export default function LeadsPage() {
           <div className="divide-y divide-border">
             {leads.map((lead) => (
               <div key={lead.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50">
-                <Checkbox />
-                <div className="flex h-2 w-2 rounded-full" style={{ backgroundColor: lead.statusColor }} />
-                <div className="flex-1">
+                <Badge variant={getStatusVariant(lead.status)} className="shrink-0">
+                  {lead.status}
+                </Badge>
+                <div className="min-w-0 flex-1">
                   <div className="mb-1 font-semibold text-foreground">{lead.name}</div>
                   <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Phone className="h-3 w-3" />
-                      <span>{lead.phone}</span>
+                      <span className="truncate">{lead.phone}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Mail className="h-3 w-3" />
-                      <span>{lead.email}</span>
+                      <span className="truncate">{lead.email}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant="secondary">{lead.status}</Badge>
-                  <span className="text-sm text-muted-foreground">{lead.source}</span>
+                <div className="shrink-0 text-sm text-muted-foreground">
+                  <span className="hidden sm:inline">{lead.source}</span>
                 </div>
               </div>
             ))}
