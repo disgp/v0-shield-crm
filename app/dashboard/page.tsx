@@ -63,10 +63,10 @@ export default function DashboardPage() {
   return (
     <AppLayout>
       <AppHeader title="Dashboard" />
-      <div className="p-6">
-        <div className="space-y-6">
+      <div className="p-4 sm:p-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Top Row */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             {/* Account Health Card */}
             <Card>
               <CardHeader>
@@ -127,18 +127,18 @@ export default function DashboardPage() {
           </div>
 
           {/* Middle Row */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             {/* Lead Velocity Chart */}
             <Card>
               <CardHeader>
                 <CardTitle>Lead Velocity</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
                   <LineChart data={velocityData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis className="text-xs" />
+                    <XAxis dataKey="month" className="text-xs" tick={{ fontSize: 11 }} />
+                    <YAxis className="text-xs" tick={{ fontSize: 11 }} />
                     <Tooltip />
                     <Line type="monotone" dataKey="leads" stroke="hsl(var(--accent))" strokeWidth={2} />
                   </LineChart>
@@ -175,14 +175,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Bottom Row - KPI Cards */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {kpis.map((kpi) => (
               <Card key={kpi.title}>
-                <CardContent className="pt-6">
+                <CardContent className="p-4 sm:pt-6">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{kpi.title}</p>
-                      <p className="mt-2 text-3xl font-bold">{kpi.value}</p>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground sm:text-sm">{kpi.title}</p>
+                      <p className="mt-1.5 text-2xl font-bold sm:mt-2 sm:text-3xl">{kpi.value}</p>
                       {kpi.trend && (
                         <div className="mt-2 flex items-center gap-1 text-sm">
                           {kpi.isUp ? (
