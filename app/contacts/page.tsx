@@ -1,3 +1,5 @@
+'use client';
+
 import { AppLayout } from '@/components/app-layout'
 import { AppHeader } from '@/components/app-header'
 import { Button } from '@/components/ui/button'
@@ -73,6 +75,15 @@ export default function ContactsPage() {
       />
       <div className="p-6">
         <Card className="overflow-hidden">
+          {/* Select All Header */}
+          <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-4 py-3">
+            <Checkbox id="select-all" />
+            <label htmlFor="select-all" className="text-sm font-medium">
+              Select All
+            </label>
+          </div>
+          
+          {/* Contacts List */}
           <div className="divide-y divide-border">
             {contacts.map((contact) => (
               <Link
@@ -80,22 +91,22 @@ export default function ContactsPage() {
                 href={`/contacts/${contact.id}`}
                 className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50"
               >
-                <Checkbox />
-                <div className="flex-1">
+                <Checkbox onClick={(e) => e.preventDefault()} />
+                <div className="min-w-0 flex-1">
                   <div className="mb-1 font-semibold text-foreground">{contact.name}</div>
                   <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    <span>
+                    <span className="truncate">
                       {contact.address.street}, {contact.address.city}, {contact.address.state}{' '}
                       {contact.address.zip}
                     </span>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="shrink-0 text-xs">
                       {contact.propertyType}
                     </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
-                  <span>{contact.phone}</span>
+                  <span className="hidden sm:inline">{contact.phone}</span>
                 </div>
               </Link>
             ))}

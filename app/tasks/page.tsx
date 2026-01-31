@@ -13,8 +13,6 @@ const tasks = [
     dueDate: '2024-02-15',
     priority: 'High',
     assignee: 'JD',
-    statusColor: 'bg-gray-500',
-    priorityColor: 'destructive',
   },
   {
     id: '2',
@@ -23,8 +21,6 @@ const tasks = [
     dueDate: '2024-02-12',
     priority: 'High',
     assignee: 'JS',
-    statusColor: 'bg-blue-500',
-    priorityColor: 'destructive',
   },
   {
     id: '3',
@@ -33,8 +29,6 @@ const tasks = [
     dueDate: '2024-02-18',
     priority: 'Medium',
     assignee: 'BW',
-    statusColor: 'bg-gray-500',
-    priorityColor: 'default',
   },
   {
     id: '4',
@@ -43,8 +37,6 @@ const tasks = [
     dueDate: '2024-02-14',
     priority: 'High',
     assignee: 'JD',
-    statusColor: 'bg-blue-500',
-    priorityColor: 'destructive',
   },
   {
     id: '5',
@@ -53,8 +45,6 @@ const tasks = [
     dueDate: '2024-02-10',
     priority: 'Low',
     assignee: 'AB',
-    statusColor: 'bg-green-500',
-    priorityColor: 'secondary',
   },
   {
     id: '6',
@@ -63,10 +53,21 @@ const tasks = [
     dueDate: '2024-02-16',
     priority: 'Medium',
     assignee: 'JS',
-    statusColor: 'bg-gray-500',
-    priorityColor: 'default',
   },
 ]
+
+const getPriorityVariant = (priority: string) => {
+  switch (priority) {
+    case 'High':
+      return 'destructive'
+    case 'Medium':
+      return 'default'
+    case 'Low':
+      return 'secondary'
+    default:
+      return 'secondary'
+  }
+}
 
 export default function TasksPage() {
   return (
@@ -85,17 +86,20 @@ export default function TasksPage() {
           <div className="divide-y divide-border">
             {tasks.map((task) => (
               <div key={task.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50">
-                <div className="flex h-2 w-2 rounded-full" style={{ backgroundColor: task.statusColor }} />
-                <div className="flex-1">
+                <Badge variant={getPriorityVariant(task.priority)} className="shrink-0">
+                  {task.priority}
+                </Badge>
+                <div className="min-w-0 flex-1">
                   <div className="mb-1 font-semibold text-foreground">{task.title}</div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="h-3 w-3" />
                     <span>{task.dueDate}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={task.priorityColor as any}>{task.priority}</Badge>
-                  <Badge variant="secondary">{task.status}</Badge>
+                <div className="flex shrink-0 items-center gap-3">
+                  <Badge variant="secondary" className="hidden sm:flex">
+                    {task.status}
+                  </Badge>
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
                     {task.assignee}
                   </div>

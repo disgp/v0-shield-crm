@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import {
   Users,
@@ -27,14 +28,7 @@ const navigation = [
     ],
   },
   {
-    name: 'Finance',
-    items: [
-      { name: 'Estimates', href: '/estimates', icon: FileText },
-      { name: 'Invoices', href: '/invoices', icon: Receipt },
-    ],
-  },
-  {
-    name: 'Marketing',
+    name: 'MARKETING',
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Leads', href: '/leads', icon: UserPlus },
@@ -52,9 +46,15 @@ export function AppSidebar() {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar">
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-          <Shield className="h-8 w-8 text-sidebar-primary" />
-          <span className="text-lg font-bold text-sidebar-foreground">ShieldCRM</span>
+        <div className="flex h-16 items-center border-b border-sidebar-border px-6">
+          <Image
+            src="https://shieldcoatinginsulation.com/wp-content/uploads/2025/10/shield-roof-coating-texas-logo-horizontal-1.png"
+            alt="Shield Coating & Insulation"
+            width={180}
+            height={40}
+            className="h-10 w-auto"
+            priority
+          />
         </div>
 
         {/* Navigation */}

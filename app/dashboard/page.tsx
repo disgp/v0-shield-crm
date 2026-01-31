@@ -10,12 +10,12 @@ import { ArrowUp, ArrowDown, TrendingUp, DollarSign, Target, Percent } from 'luc
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 const velocityData = [
-  { month: 'Jul', leads: 45 },
-  { month: 'Aug', leads: 52 },
-  { month: 'Sep', leads: 48 },
-  { month: 'Oct', leads: 61 },
-  { month: 'Nov', leads: 55 },
-  { month: 'Dec', leads: 67 },
+  { month: 'Jan', leads: 45 },
+  { month: 'Feb', leads: 52 },
+  { month: 'Mar', leads: 48 },
+  { month: 'Apr', leads: 61 },
+  { month: 'May', leads: 55 },
+  { month: 'Jun', leads: 67 },
 ]
 
 const leadSources = [
@@ -36,7 +36,7 @@ const kpis = [
     color: 'text-accent',
   },
   {
-        title: 'Cost Per Lead',
+    title: 'Cost Per Lead',
     value: '$42',
     trend: '-8%',
     isUp: true,
@@ -52,7 +52,7 @@ const kpis = [
   },
   {
     title: 'ROI Check',
-    value: '4.2x',
+    value: '5.2x',
     subtitle: 'Ad Spend Return',
     icon: Percent,
     color: 'text-accent',
@@ -62,7 +62,7 @@ const kpis = [
 export default function DashboardPage() {
   return (
     <AppLayout>
-      <AppHeader title="Marketing Dashboard" />
+      <AppHeader title="Dashboard" />
       <div className="p-6">
         <div className="space-y-6">
           {/* Top Row */}
@@ -106,31 +106,22 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Include in Report</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="leads" defaultChecked />
-                      <label htmlFor="leads" className="text-sm">
-                        Lead Data
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="conversions" defaultChecked />
-                      <label htmlFor="conversions" className="text-sm">
-                        Conversion Metrics
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="roi" />
-                      <label htmlFor="roi" className="text-sm">
-                        ROI Analysis
-                      </label>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="brief" defaultChecked />
+                    <label htmlFor="brief" className="text-sm font-medium">
+                      Brief Summary
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="detailed" />
+                    <label htmlFor="detailed" className="text-sm font-medium">
+                      Detailed Report
+                    </label>
                   </div>
                 </div>
 
-                <Button className="w-full">Generate Report</Button>
+                <Button className="w-full bg-accent hover:bg-accent/90">Generate Report</Button>
               </CardContent>
             </Card>
           </div>
