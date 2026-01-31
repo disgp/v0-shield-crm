@@ -9,7 +9,9 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Mail, Trash2 } from 'lucide-react'
+import { signOut } from '@/lib/supabase/auth'
 
 const teamMembers = [
   { id: '1', email: 'jane.smith@company.com', name: 'Jane Smith', role: 'Admin' },
@@ -18,9 +20,19 @@ const teamMembers = [
 ]
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [darkMode, setDarkMode] = useState(false)
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [smsNotifications, setSmsNotifications] = useState(false)
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/login')
+    } catch (error) {
+      console.error('[v0] Failed to sign out:', error)
+    }
+  }
 
   return (
     <AppLayout>
@@ -154,7 +166,11 @@ export default function SettingsPage() {
               <CardDescription>Manage your account settings</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground bg-transparent">
+              <Button 
+                variant="outline" 
+                onClick={handleSignOut}
+                className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground bg-transparent"
+              >
                 Sign Out
               </Button>
             </CardContent>
