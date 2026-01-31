@@ -26,7 +26,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center space-y-4">
           <div className="flex h-28 w-28 items-center justify-center rounded-[28px] bg-white shadow-lg">
             <Image
-              src="/images/shield-roof-coating-texas-logo-icon-20small.png"
+              src="https://i.ibb.co/JjL0219x/shield-roof-coating-texas-logo-icon-small.png"
               alt="Shield CRM"
               width={96}
               height={96}
