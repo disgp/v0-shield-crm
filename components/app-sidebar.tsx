@@ -27,14 +27,7 @@ const navigation = [
     ],
   },
   {
-    name: 'Finance',
-    items: [
-      { name: 'Estimates', href: '/estimates', icon: FileText },
-      { name: 'Invoices', href: '/invoices', icon: Receipt },
-    ],
-  },
-  {
-    name: 'Marketing',
+    name: 'MARKETING',
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Leads', href: '/leads', icon: UserPlus },
