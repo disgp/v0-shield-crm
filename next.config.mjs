@@ -5,8 +5,17 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'shieldcoatinginsulation.com',
+      },
+    ],
   },
- 
 }
 
 export default nextConfig
