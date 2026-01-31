@@ -48,7 +48,7 @@ export function AppSidebar() {
         {/* Logo */}
         <div className="flex h-16 items-center border-b border-sidebar-border px-6">
           <Image
-            src="/images/logo-horizontal.png"
+            src="https://shieldcoatinginsulation.com/wp-content/uploads/2025/10/shield-roof-coating-texas-logo-horizontal-1.png"
             alt="Shield Coating & Insulation"
             width={180}
             height={40}
