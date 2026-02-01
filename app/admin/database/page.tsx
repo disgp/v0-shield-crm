@@ -1,78 +1,98 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, XCircle, Database, Table, Users } from 'lucide-react'
+import { CheckCircle2, XCircle, Database, Table, Users, Play, RefreshCw, Loader2 } from 'lucide-react'
 
-export default async function DatabaseAdminPage() {
-  const supabase = await createClient()
-  
-  // Test database connection and gather stats
-  let connectionStatus = 'disconnected'
-  let tables: any[] = []
-  let tableCounts: Record<string, number> = {}
-  let error: string | null = null
+type ConnectionStatus = {
+  success: boolean
+  connected: boolean
+  tablesExist?: boolean
+  message: string
+  error?: string
+  counts?: Record<string, number>
+  samples?: {
+    users: any[]
+    companies: any[]
+    deals: any[]
+  }
+}
 
-  try {
-    // Test basic connection with a simple query
-    const { data: testData, error: testError } = await supabase
-      .from('profiles')
-      .select('count')
-      .limit(1)
+export default function DatabaseAdminPage() {
+  const [status, setStatus] = useState<ConnectionStatus | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [setupLoading, setSetupLoading] = useState(false)
+  const [seedLoading, setSeedLoading] = useState(false)
 
-    if (testError) throw testError
-    
-    connectionStatus = 'connected'
-
-    // Get table counts
-    const tableNames = [
-      'profiles',
-      'contacts', 
-      'properties',
-      'jobs',
-      'tasks',
-      'invoices',
-      'estimates',
-      'insurance',
-      'notes',
-      'payments',
-      'inspections',
-      'material_orders',
-      'products',
-      'activity_logs'
-    ]
-
-    for (const tableName of tableNames) {
-      const { count, error: countError } = await supabase
-        .from(tableName)
-        .select('*', { count: 'exact', head: true })
-      
-      if (!countError && count !== null) {
-        tableCounts[tableName] = count
-      }
+  const checkConnection = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/verify-connection')
+      const data = await response.json()
+      setStatus(data)
+    } catch (error: any) {
+      setStatus({
+        success: false,
+        connected: false,
+        message: 'Failed to check connection',
+        error: error.message
+      })
+    } finally {
+      setLoading(false)
     }
-
-    // Get sample data from jobs view
-    const { data: jobsData, error: jobsError } = await supabase
-      .from('jobs')
-      .select(`
-        *,
-        properties (address_line_1, city, state_iso),
-        contacts (first_name, last_name, email)
-      `)
-      .is('deleted_at', null)
-      .limit(5)
-
-    if (!jobsError && jobsData) {
-      tables = jobsData
-    }
-
-  } catch (e: any) {
-    console.error('[v0] Database connection error:', e)
-    error = e.message
-    connectionStatus = 'error'
   }
 
-  const totalRecords = Object.values(tableCounts).reduce((sum, count) => sum + count, 0)
+  const runSetup = async () => {
+    setSetupLoading(true)
+    try {
+      const response = await fetch('/api/admin/setup-database', {
+        method: 'POST'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        alert('Database setup completed successfully!')
+        checkConnection()
+      } else {
+        alert(`Setup failed: ${data.error}\n\n${data.details || ''}`)
+      }
+    } catch (error: any) {
+      alert(`Setup failed: ${error.message}`)
+    } finally {
+      setSetupLoading(false)
+    }
+  }
+
+  const runSeed = async () => {
+    setSeedLoading(true)
+    try {
+      const response = await fetch('/api/admin/seed-database', {
+        method: 'POST'
+      })
+      const data = await response.json()
+      
+      if (data.success) {
+        alert(`Database seeded successfully!\n\nCreated:\n- ${data.data.users} users\n- ${data.data.companies} companies\n- ${data.data.contacts} contacts\n- ${data.data.deals} deals`)
+        checkConnection()
+      } else {
+        alert(`Seeding failed: ${data.error}\n\n${data.details || ''}`)
+      }
+    } catch (error: any) {
+      alert(`Seeding failed: ${error.message}`)
+    } finally {
+      setSeedLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    checkConnection()
+  }, [])
+
+  const totalRecords = status?.counts 
+    ? Object.values(status.counts).reduce((sum, count) => sum + count, 0)
+    : 0
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -83,20 +103,35 @@ export default async function DatabaseAdminPage() {
             Monitor your ShieldCRM database connection and data
           </p>
         </div>
-        <Badge 
-          variant={connectionStatus === 'connected' ? 'default' : 'destructive'}
-          className="text-sm px-4 py-2"
-        >
-          {connectionStatus === 'connected' ? (
-            <CheckCircle2 className="w-4 h-4 mr-2" />
-          ) : (
-            <XCircle className="w-4 h-4 mr-2" />
-          )}
-          {connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={checkConnection}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
+            Refresh
+          </Button>
+          <Badge 
+            variant={status?.connected ? 'default' : 'destructive'}
+            className="text-sm px-4 py-2"
+          >
+            {status?.connected ? (
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+            ) : (
+              <XCircle className="w-4 h-4 mr-2" />
+            )}
+            {status?.connected ? 'Connected' : 'Disconnected'}
+          </Badge>
+        </div>
       </div>
 
-      {error && (
+      {!status?.success && status?.error && (
         <Card className="border-destructive">
           <CardHeader>
             <CardTitle className="text-destructive flex items-center gap-2">
@@ -105,174 +140,267 @@ export default async function DatabaseAdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">{error}</p>
-            <div className="mt-4 p-4 bg-muted rounded-md">
-              <p className="text-sm font-medium mb-2">Setup Instructions:</p>
-              <ol className="text-sm space-y-2 list-decimal list-inside">
-                <li>Make sure Supabase integration is connected</li>
-                <li>
-                  Run the database setup script in your Supabase SQL Editor:
-                  <code className="block mt-1 p-2 bg-background rounded text-xs">
-                    /scripts/01-setup-database.sql
-                  </code>
-                </li>
-                <li>
-                  Run the seed data script:
-                  <code className="block mt-1 p-2 bg-background rounded text-xs">
-                    /scripts/02-seed-mock-data.sql
-                  </code>
-                </li>
-                <li>Refresh this page to verify the connection</li>
-              </ol>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tables</CardTitle>
-            <Database className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Object.keys(tableCounts).length}</div>
-            <p className="text-xs text-muted-foreground">
-              Database tables
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-            <Table className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalRecords.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all tables
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Contacts</CardTitle>
-            <Users className="w-4 h-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tableCounts['contacts'] || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Clients and leads
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Table Statistics</CardTitle>
-          <CardDescription>Record counts for each table in the database</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(tableCounts)
-              .sort(([, a], [, b]) => b - a)
-              .map(([tableName, count]) => (
-                <div 
-                  key={tableName}
-                  className="flex items-center justify-between p-3 border rounded-lg"
+            <p className="text-sm text-muted-foreground mb-4">{status.error}</p>
+            <div className="p-4 bg-muted rounded-md">
+              <p className="text-sm font-medium mb-3">Quick Setup:</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Use the buttons below to automatically set up your database and seed it with mock data.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={runSetup}
+                  disabled={setupLoading}
                 >
-                  <span className="font-medium capitalize">
-                    {tableName.replace(/_/g, ' ')}
-                  </span>
-                  <Badge variant="secondary">{count}</Badge>
-                </div>
-              ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {tables.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Jobs</CardTitle>
-            <CardDescription>Sample data from your jobs table</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {tables.map((job: any) => (
-                <div key={job.id} className="flex items-start justify-between p-4 border rounded-lg">
-                  <div className="space-y-1">
-                    <p className="font-medium">{job.name || 'Untitled Job'}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {job.properties?.address_line_1}, {job.properties?.city}, {job.properties?.state_iso}
-                    </p>
-                    {job.contacts && (
-                      <p className="text-sm text-muted-foreground">
-                        {job.contacts.first_name} {job.contacts.last_name}
-                      </p>
-                    )}
-                  </div>
-                  <Badge>{job.stage}</Badge>
-                </div>
-              ))}
+                  {setupLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4 mr-2" />
+                  )}
+                  Run Setup
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={runSeed}
+                  disabled={seedLoading || !status?.tablesExist}
+                >
+                  {seedLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Database className="w-4 h-4 mr-2" />
+                  )}
+                  Seed Data
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Database Scripts</CardTitle>
-          <CardDescription>
-            SQL scripts for setting up and managing your database
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="font-medium">1. Setup Database Schema</h3>
-            <p className="text-sm text-muted-foreground">
-              Creates all tables, enums, indexes, and RLS policies
+      {status?.connected && !status?.tablesExist && (
+        <Card className="border-yellow-500">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Tables Not Found
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Connected to Supabase but database tables do not exist. Click the button below to set up your database.
             </p>
-            <code className="block p-3 bg-muted rounded text-xs">
-              /scripts/01-setup-database.sql
-            </code>
+            <div className="flex gap-3">
+              <Button
+                onClick={runSetup}
+                disabled={setupLoading}
+              >
+                {setupLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Play className="w-4 h-4 mr-2" />
+                )}
+                Run Setup
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {status?.success && (
+        <>
+          <div className="flex gap-3">
+            <Button
+              onClick={runSetup}
+              disabled={setupLoading}
+              variant="outline"
+            >
+              {setupLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4 mr-2" />
+              )}
+              Reset Database
+            </Button>
+            <Button
+              onClick={runSeed}
+              disabled={seedLoading}
+              variant="outline"
+            >
+              {seedLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Database className="w-4 h-4 mr-2" />
+              )}
+              Seed Mock Data
+            </Button>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="font-medium">2. Seed Mock Data</h3>
-            <p className="text-sm text-muted-foreground">
-              Populates the database with realistic test data
-            </p>
-            <code className="block p-3 bg-muted rounded text-xs">
-              /scripts/02-seed-mock-data.sql
-            </code>
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Tables</CardTitle>
+                <Database className="w-4 h-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {status.counts ? Object.keys(status.counts).length : 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Database tables
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Records</CardTitle>
+                <Table className="w-4 h-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalRecords.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">
+                  Across all tables
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <Users className="w-4 h-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {status.counts?.users || 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  System users
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="font-medium">3. Verify Connection</h3>
-            <p className="text-sm text-muted-foreground">
-              Runs diagnostic queries to verify database setup
-            </p>
-            <code className="block p-3 bg-muted rounded text-xs">
-              /scripts/03-verify-connection.sql
-            </code>
-          </div>
+          {status.counts && Object.keys(status.counts).length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Table Statistics</CardTitle>
+                <CardDescription>Record counts for each table in the database</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  {Object.entries(status.counts)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([tableName, count]) => (
+                      <div 
+                        key={tableName}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <span className="font-medium capitalize">
+                          {tableName}
+                        </span>
+                        <Badge variant="secondary">{count}</Badge>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          <div className="mt-4 p-4 bg-muted rounded-md">
-            <p className="text-sm font-medium mb-2">How to run these scripts:</p>
-            <ol className="text-sm space-y-2 list-decimal list-inside">
-              <li>Open your Supabase project dashboard</li>
-              <li>Navigate to the SQL Editor</li>
-              <li>Copy and paste each script in order</li>
-              <li>Click Run to execute</li>
-              <li>Refresh this page to see the results</li>
-            </ol>
-          </div>
-        </CardContent>
-      </Card>
+          {status.samples?.users && status.samples.users.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Sample Users</CardTitle>
+                <CardDescription>Recent users in your database</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {status.samples.users.map((user: any) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="space-y-1">
+                        <p className="font-medium">{user.full_name}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      </div>
+                      <Badge variant={user.is_active ? 'default' : 'secondary'}>
+                        {user.role}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {status.samples?.companies && status.samples.companies.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Sample Companies</CardTitle>
+                <CardDescription>Recent companies in your database</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {status.samples.companies.map((company: any) => (
+                    <div key={company.id} className="flex items-start justify-between p-3 border rounded-lg">
+                      <div className="space-y-1">
+                        <p className="font-medium">{company.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {company.industry}
+                        </p>
+                        {company.city && company.state && (
+                          <p className="text-sm text-muted-foreground">
+                            {company.city}, {company.state}
+                          </p>
+                        )}
+                      </div>
+                      {company.website && (
+                        <a 
+                          href={company.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          Visit
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {status.samples?.deals && status.samples.deals.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Sample Deals</CardTitle>
+                <CardDescription>Recent deals in your pipeline</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {status.samples.deals.map((deal: any) => (
+                    <div key={deal.id} className="flex items-start justify-between p-3 border rounded-lg">
+                      <div className="space-y-1">
+                        <p className="font-medium">{deal.title}</p>
+                        {deal.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {deal.description}
+                          </p>
+                        )}
+                        {deal.value && (
+                          <p className="text-sm font-semibold text-green-600">
+                            ${parseFloat(deal.value).toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <Badge>{deal.stage}</Badge>
+                        <Badge variant="outline">{deal.priority}</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
     </div>
   )
 }
