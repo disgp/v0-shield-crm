@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public routes
@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
 
   // Temporarily allow all routes through while we set up authentication
   // TODO: Re-enable authentication once Supabase is fully configured
-  console.log('[v0] Middleware running for path:', pathname)
+  console.log('[v0] Proxy running for path:', pathname)
   return NextResponse.next()
 
   /* Authentication check - temporarily disabled
