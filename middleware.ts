@@ -10,19 +10,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // If Supabase env vars are not set, allow through without auth check
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.log('[v0] Supabase environment variables not set, skipping auth check')
-    return NextResponse.next()
-  }
+  // Temporarily allow all routes through while we set up authentication
+  // TODO: Re-enable authentication once Supabase is fully configured
+  console.log('[v0] Middleware running for path:', pathname)
+  return NextResponse.next()
 
+  /* Authentication check - temporarily disabled
   let supabaseResponse = NextResponse.next({
     request,
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
@@ -54,6 +54,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return supabaseResponse
+  */
 }
 
 export const config = {
